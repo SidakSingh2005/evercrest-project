@@ -15,3 +15,21 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Generated on fullsiteediting.com. No code version.
 */
+body.home .blog-main {
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+}
+
+body.home .blog-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 24px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+body.home .blog-card {
+    min-width: 0 !important;
+    width: 100% !important;
+}
