@@ -161,7 +161,8 @@ add_shortcode('single_post_content', 'custom_single_post_content');
 // BLOG PAGE STYLES
 // =============================================
 function custom_blog_page_styles() {
-    if(is_home()) { ?>
+    if(is_home() || is_archive() || is_paged() || is_search()) { ?>
+
         <style>
             /* ===== FIX WORDPRESS PADDING ===== */
         .wp-block-group:has(.blog-hero) {
@@ -502,9 +503,9 @@ add_action('wp_head', 'custom_blog_page_styles');
 // BLOG PAGE SHORTCODE
 // =============================================
 function custom_blog_page_content() {
-    $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
-    $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
-    $cat_filter = isset($_GET['cat']) ? intval($_GET['cat']) : 0;
+    $paged = (get_query_var('paged')) ? get_query_var('paged') : ((get_query_var('page')) ? get_query_var('page') : 1);
+    $search = get_search_query() ? get_search_query() : (isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '');
+    $cat_filter = get_query_var('cat') ? get_query_var('cat') : (isset($_GET['cat']) ? intval($_GET['cat']) : 0);
 
     $args = array(
         'post_type' => 'post',
@@ -638,3 +639,43 @@ function custom_blog_page_content() {
     return ob_get_clean();
 }
 add_shortcode('blog_page_content', 'custom_blog_page_content');
+
+// Fix blog pagination query
+function custom_fix_blog_pagination($query) {
+    if(!is_admin() && $query->is_main_query() && $query->is_home()) {
+        $query->set('posts_per_page', 4);
+    }
+}
+add_action('pre_get_posts', 'custom_fix_blog_pagination');
+
+// =============================================
+// CUSTOM POST TYPE: SERVICES
+// =============================================
+function evercrest_register_services_post_type() {
+    $labels = array(
+        'name'               => 'Services',
+        'singular_name'      => 'Service',
+        'menu_name'          => 'Services',
+        'add_new'            => 'Add New Service',
+        'add_new_item'       => 'Add New Service',
+        'edit_item'          => 'Edit Service',
+        'view_item'          => 'View Service',
+        'all_items'          => 'All Services',
+        'search_items'       => 'Search Services',
+        'not_found'          => 'No services found',
+    );
+
+    $args = array(
+        'labels'             => $labels,
+        'public'             => true,
+        'show_in_rest'       => true,
+        'supports'           => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'has_archive'        => true,
+        'show_in_menu'       => true,
+        'menu_icon'          => 'dashicons-star-filled',
+        'rewrite'            => array('slug' => 'services'),
+    );
+
+    register_post_type('services', $args);
+}
+add_action('init', 'evercrest_register_services_post_type');
